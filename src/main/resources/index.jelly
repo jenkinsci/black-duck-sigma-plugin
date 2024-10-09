@@ -1,0 +1,5 @@
+<!-- Copyright (c) 2024 Black Duck Software, Inc. All rights reserved worldwide. -->
+<?jelly escape-by-default='true'?>
+<div>
+  Black Duck Rapid Scan Static Plugin
+</div>

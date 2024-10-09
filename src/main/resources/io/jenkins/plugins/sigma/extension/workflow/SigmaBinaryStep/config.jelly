@@ -1,0 +1,24 @@
+<!-- Copyright (c) 2024 Black Duck Software, Inc. All rights reserved worldwide. -->
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry title="${%sigmaTool}">
+      <j:choose>
+        <j:when test="${descriptor.hasToolsConfigured()}">
+          <f:select id="sigmaToolNameId" field="sigmaToolName"/>
+        </j:when>
+        <j:otherwise>
+            <p>
+                ${%missingToolText}
+            </p>
+        </j:otherwise>
+      </j:choose>
+    </f:entry>
+    <f:entry field="ignorePolicies" title="${%ignorePoliciesTitle}">
+        <f:checkbox default="true"/>
+    </f:entry>
+    <f:advanced>
+        <f:entry field="commandLine" title="${%commandLineTitle}">
+            <f:textbox/>
+        </f:entry>
+    </f:advanced>
+</j:jelly>

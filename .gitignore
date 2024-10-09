@@ -1,0 +1,19 @@
+# operating system
+.DS_Store
+
+# build tool
+.mvn/
+build/
+work/
+target/
+
+# IDE
+out/
+bin/
+.settings
+.classpath
+.project
+*.iml
+*.iws
+*.ipr
+.idea
