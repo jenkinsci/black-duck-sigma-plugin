@@ -1,2 +1,0 @@
-_extends: .github
-tag-template: black-duck-sigma-$NEXT_MINOR_VERSION
