@@ -35,6 +35,7 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.verb.POST;
 
 public class SigmaBinaryStep extends Builder implements SimpleBuildStep {
     public static final String FAILURE_MESSAGE = "Unable to perform Black Duck Rapid Scan Static static analysis: ";
@@ -215,6 +216,7 @@ public class SigmaBinaryStep extends Builder implements SimpleBuildStep {
             return installations.length > 0;
         }
 
+        @POST
         @SuppressWarnings("unused")
         public ListBoxModel doFillSigmaToolNameItems(@AncestorInPath Item item) {
             ListBoxModel items = new ListBoxModel();
