@@ -11,7 +11,7 @@
 
   <groupId>io.jenkins.plugins</groupId>
   <artifactId>black-duck-sigma</artifactId>
-  <version>2024.10.1</version>
+  <version>2024.10.1-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Black Duck Rapid Scan Static Plugin</name>
@@ -31,7 +31,7 @@
 
   <properties>
     <revision>2024.10.1</revision>
-    <changelist· />
+    <changelist>-SNAPSHOT</changelist>
 
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
     <jenkins.version>2.440.3</jenkins.version>
