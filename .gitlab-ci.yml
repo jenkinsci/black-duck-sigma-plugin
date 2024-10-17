@@ -1,0 +1,20 @@
+# Copyright (c) 2024 Black Duck Software, Inc. All rights reserved worldwide.
+include:
+    - local: gitlab-ci/common-variables.yml
+    - local: gitlab-ci/release.yml
+
+stages:
+    - build
+    - release
+
+# Build job
+mvnBuildJob:
+    image: maven:3.8.6-jdk-11
+    stage: build
+    script:
+        - mkdir -p ~/.m2
+        - cp settings.xml ~/.m2/settings.xml
+        - mvn verify
+    artifacts:
+        paths:
+            - target/black-duck-sigma.hpi

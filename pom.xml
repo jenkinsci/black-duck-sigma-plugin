@@ -22,7 +22,7 @@
       <url>https://opensource.org/license/mit/</url>
     </license>
   </licenses>
-  <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
+  <scm>
     <connection>scm:git:git@github.com:${gitHubRepo}</connection>
     <developerConnection>scm:git:git@github.com:${gitHubRepo}</developerConnection>
     <tag>${scmTag}</tag>

@@ -1,0 +1,49 @@
+# Copyright (c) 2024 Black Duck Software, Inc. All rights reserved worldwide.
+.jfrog_variables: &jfrog_variables
+    JFROG_CLI_BUILD_NAME: "${CI_PIPELINE_URL}"
+    JFROG_CLI_BUILD_NUMBER: "${CI_PIPELINE_IID}"
+    JFROG_CLI_BUILD_URL: "${CI_PIPELINE_URL}"
+.jfrog_before_script: &jfrog_before_script
+    - curl --silent --output jfrog $ARTIFACTORY_JFROG_URL
+    - chmod a+x jfrog
+    - ./jfrog rt config import ${SIGMA_CICD_ARTIFACTORY_CONFIG}
+
+# Do not use this job in an extends key. This mock job exists only to contain relevant yaml anchors.
+.common_rules_for_interactive_pipelines:
+    - &always_run_for_tags
+      if: $CI_COMMIT_TAG
+    - &always_run_for_master_branch # The current DEFAULT branch is 'master'. If this ever changes, the name of this job should be updated.
+      if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+#####################################
+# Releases from the "master" branch.
+#####################################
+upload_unreleased_to_artifactory:
+    image: releng/base-gitlab-runner:jdk17-python3.11-git
+    stage: release
+    needs:
+        - mvnBuildJob
+    variables: *jfrog_variables
+    before_script: *jfrog_before_script
+    script:
+        - VERSION=$(grep '^  <version>' pom.xml | sed -E 's/  <version>(([0-9]+([.][0-9]+)+)*-SNAPSHOT)<\/version>/\1/')
+        - ./jfrog rt upload --server-id sig-artifactory --fail-no-op "target/black-duck-sigma.hpi" sigma-local/black-duck-sigma-jenkins-plugin/unreleased/${VERSION}/
+        - ./jfrog rt upload --server-id sig-artifactory --fail-no-op "target/black-duck-sigma.hpi" sigma-local/black-duck-sigma-jenkins-plugin/unreleased/latest/
+    rules:
+        - *always_run_for_master_branch
+
+# Upload the binaries and containers suitable for external release.
+upload_released_to_artifactory:
+    image: releng/base-gitlab-runner:jdk17-python3.11-git
+    stage: release
+    needs:
+        - mvnBuildJob
+    variables: *jfrog_variables
+    before_script: *jfrog_before_script
+    script:
+        # at release time, "-SNAPSHOT" will be removed from the pom.xml file
+        - VERSION=$(grep '^  <version>' pom.xml | sed -E 's/  <version>(([0-9]+([.][0-9]+)+))<\/version>/\1/')
+        - ./jfrog rt upload --server-id sig-artifactory --fail-no-op "target/black-duck-sigma.hpi" sigma-local/black-duck-sigma-jenkins-plugin/released/${VERSION}/
+        - ./jfrog rt upload --server-id sig-artifactory --fail-no-op "target/black-duck-sigma.hpi" sigma-local/black-duck-sigma-jenkins-plugin/released/latest/
+    rules:
+        - *always_run_for_tags
