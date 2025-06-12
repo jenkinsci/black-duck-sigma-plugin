@@ -20,6 +20,3 @@ mvnBuildJob:
     artifacts:
         paths:
             - target/black-duck-sigma.hpi
-    rules:
-        - !reference [.never_run_for_scheduled_jobs]
-        - when: always

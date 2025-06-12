@@ -49,34 +49,25 @@ variables:
             --detect.tools=BINARY_SCAN
             --detect.binary.scan.file.path=target/black-duck-sigma.hpi
 
+.extract_version_from_pom:
+    - VERSION=$(grep '^  <version>' pom.xml | sed -E 's/  <version>(([0-9]+([.][0-9]+)+)*)(-SNAPSHOT)?<\/version>/\1/')
+
 pop_sca_scan:released:
     extends: [.pop_sca_scan_base]
     needs:
         - mvnBuildJob
-    variables:
-        BUILD_VERSION: jenkins-plugin-released
+    before_script:
+        - !reference [.extract_version_from_pom]
+        - BUILD_VERSION=jenkins-plugin-${VERSION}
     rules:
+        - !reference [.never_run_for_scheduled_jobs]
         - !reference [.always_run_for_tags]
 
 pop_sca_scan:unreleased:
     extends: [.pop_sca_scan_base]
     needs:
         - mvnBuildJob
-    variables:
-        BUILD_VERSION: jenkins-plugin-unreleased
+    before_script:
+        - BUILD_VERSION=jenkins-plugin-unreleased
     rules:
         - !reference [.always_run_for_master_branch]
-
-pop_sca_scan:released_scheduled:
-    extends: [.pop_sca_scan_base]
-    needs: []
-    variables:
-        BUILD_VERSION: jenkins-plugin-released
-    before_script:
-        - !reference [.jfrog_before_script]
-        - ./jfrog rt download --server-id sig-artifactory --fail-no-op sigma-local/black-duck-sigma-jenkins-plugin/released/latest/black-duck-sigma.hpi
-        - mkdir target
-        - cp black-duck-sigma-jenkins-plugin/released/latest/black-duck-sigma.hpi target/
-    rules:
-        - !reference [.only_run_for_scheduled_jobs]
-        - when: always

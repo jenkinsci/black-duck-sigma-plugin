@@ -16,9 +16,6 @@ variables:
 .never_run_for_scheduled_jobs:
     if: $CI_PIPELINE_SOURCE == "schedule"
     when: never
-.only_run_for_scheduled_jobs:
-    if: $CI_PIPELINE_SOURCE != "schedule"
-    when: never
 .always_run_for_tags:
     if: $CI_COMMIT_TAG
 .always_run_for_master_branch:
