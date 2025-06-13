@@ -1,0 +1,73 @@
+# Copyright (c) 2025 Black Duck Software, Inc. All rights reserved worldwide.
+include:
+    - local: gitlab-ci/common.yml
+
+variables:
+    BLACKDUCK_USERNAME: hub-detect-automation
+    BLACKDUCK_PROJECT_NAME: Sigma
+    DETECT_SCRIPT_BASH: detect10.sh
+    DETECT_SCRIPT_URL_BASH: https://detect.blackduck.com/${DETECT_SCRIPT_BASH}
+
+.pop_sca_scan_get_bd_hub_api_token_bash:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - python3 -m ensurepip
+    - python3 -m pip install SIGVault $PYTHON_PYPI
+    - python3 -m pip install synopsys-ca $PYTHON_PYPI
+    - install-synopsys-ca
+    - export BLACKDUCK_API_TOKEN=$(sigvault_read_approle.py -m secret -p blackduck-hub/releng/${BLACKDUCK_SERVER}/${BLACKDUCK_USERNAME} -k api_token -a ${VAULT_URL})
+    - >
+        if [[ $BLACKDUCK_API_TOKEN == "" ]] || [[ $BLACKDUCK_API_TOKEN =~ /.*exception.*/ ]]; then
+            echo "Something failed while getting the API token from the vault";
+            exit 1;
+        fi
+    - deactivate
+    - rm -rf .venv
+
+.pop_sca_scan_base:
+    stage: pop_sca_scan
+    image: releng/base-gitlab-runner:jdk17-python3.11-git
+    script:
+        - !reference [.pop_sca_scan_get_bd_hub_api_token_bash]
+        - curl $DETECT_SCRIPT_URL_BASH -o $DETECT_SCRIPT_BASH
+        - chmod 700 $DETECT_SCRIPT_BASH
+        - >
+            DETECT_COMMON_OPTIONS=(
+                "--blackduck.trust.cert=true"
+                "--blackduck.url=https://${BLACKDUCK_SERVER}/"
+                "--blackduck.api.token=${BLACKDUCK_API_TOKEN}"
+                "--detect.output.path=$(mktemp -d)"
+                "--detect.blackduck.signature.scanner.memory=8192"
+                "--detect.project.name=${BLACKDUCK_PROJECT_NAME}"
+                "--detect.project.version.name=${BUILD_VERSION}"
+                "--detect.project.version.phrase=Development"
+                "--detect.project.version.distribution=External"
+            )
+        - >
+            ./${DETECT_SCRIPT_BASH}
+            "${DETECT_COMMON_OPTIONS[@]}"
+            --detect.tools=BINARY_SCAN
+            --detect.binary.scan.file.path=target/black-duck-sigma.hpi
+
+.extract_version_from_pom:
+    - VERSION=$(grep '^  <version>' pom.xml | sed -E 's/  <version>(([0-9]+([.][0-9]+)+)*)(-SNAPSHOT)?<\/version>/\1/')
+
+pop_sca_scan:released:
+    extends: [.pop_sca_scan_base]
+    needs:
+        - mvnBuildJob
+    before_script:
+        - !reference [.extract_version_from_pom]
+        - BUILD_VERSION=jenkins-plugin-${VERSION}
+    rules:
+        - !reference [.never_run_for_scheduled_jobs]
+        - !reference [.always_run_for_tags]
+
+pop_sca_scan:unreleased:
+    extends: [.pop_sca_scan_base]
+    needs:
+        - mvnBuildJob
+    before_script:
+        - BUILD_VERSION=jenkins-plugin-unreleased
+    rules:
+        - !reference [.always_run_for_master_branch]
