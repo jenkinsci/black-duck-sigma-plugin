@@ -17,7 +17,7 @@ import io.jenkins.plugins.sigma.Messages;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
