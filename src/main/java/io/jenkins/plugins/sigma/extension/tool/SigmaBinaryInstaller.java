@@ -6,6 +6,7 @@ package io.jenkins.plugins.sigma.extension.tool;
 import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
+import hudson.Util;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
@@ -19,7 +20,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.servlet.ServletException;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -99,7 +99,7 @@ public class SigmaBinaryInstaller extends ToolInstaller {
         public FormValidation doCheckDownloadUrl(@QueryParameter String value) throws IOException, ServletException {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             try {
-                if (StringUtils.isBlank(value)) {
+                if (Util.fixEmptyAndTrim(value) == null) {
                     return FormValidation.error(Messages.installer_error_downloadurl_empty());
                 }
                 new URL(value);

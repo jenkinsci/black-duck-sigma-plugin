@@ -3,6 +3,7 @@
  */
 package io.jenkins.plugins.sigma.utils;
 
+import hudson.Util;
 import hudson.tools.InstallSourceProperty;
 import io.jenkins.plugins.sigma.extension.tool.SigmaBinaryInstaller;
 import io.jenkins.plugins.sigma.extension.tool.SigmaToolInstallation;
@@ -18,7 +19,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.rules.TestWatcher;
 
 public class SigmaTestUtil extends TestWatcher {
@@ -38,7 +38,7 @@ public class SigmaTestUtil extends TestWatcher {
             properties.load(propsInputStream);
         }
         downloadUrl = getProperties().getProperty(PROPERTY_KEY_INSTALLER_DOWNLOAD_URL);
-        if (StringUtils.isBlank(downloadUrl)) {
+        if (Util.fixEmptyAndTrim(downloadUrl) == null) {
             downloadUrl = getTestShellScriptAsURL().orElse(null);
         }
     }

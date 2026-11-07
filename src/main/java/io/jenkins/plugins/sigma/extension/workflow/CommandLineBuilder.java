@@ -4,6 +4,7 @@
 package io.jenkins.plugins.sigma.extension.workflow;
 
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.TaskListener;
 import hudson.util.ArgumentListBuilder;
 import io.jenkins.plugins.sigma.SigmaBuildContext;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 
 public class CommandLineBuilder {
     public static final String DEFAULT_COMMAND_LINE = "analyze --format jenkins";
@@ -32,7 +32,7 @@ public class CommandLineBuilder {
     public ArgumentListBuilder buildArgumentList() throws IOException, InterruptedException {
         String currentCommandLine = DEFAULT_COMMAND_LINE;
         PrintStream logger = sigmaBuildContext.getListener().getLogger();
-        if (StringUtils.isBlank(commandLineOverride)) {
+        if (Util.fixEmptyAndTrim(commandLineOverride) == null) {
             logger.println("Using default command line.");
         } else {
             logger.println("Using command line defined in the build step.");
